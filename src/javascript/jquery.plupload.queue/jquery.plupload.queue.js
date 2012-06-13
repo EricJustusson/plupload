@@ -283,6 +283,25 @@
 					}
 				});
 
+                // case insensitive check to see if file already has been added
+                // to queue, and if so, remove the file and set the duplicate
+                // flad to true on the File for other event listeners
+                if (settings.preventDuplicateFilenames) {
+                    var uniqueFilenames = {};
+                    uploader.bind('FilesAdded', function(up, files) {
+                        $.each(files, function(index, file){
+                            var filename = file.name.toLowerCase();
+                            if (uniqueFilenames.hasOwnProperty(filename)) {
+                                file.duplicate = true;
+                                up.removeFile(file);
+                            } else {
+                                uniqueFilenames[filename] = true;
+                            }
+                        });
+                    });
+                    
+                }
+                
 				uploader.bind('StateChanged', function() {
 					if (uploader.state === plupload.STARTED) {
 						$('li.plupload_delete a,div.plupload_buttons', target).hide();
